@@ -21,7 +21,7 @@ if 'logged_in' not in st.session_state:
 # --- 2. KONEKSI GOOGLE (SHEETS & DRIVE) ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 try:
-    creds_info = st.secrets["gcp_service_account"]
+    creds_info = st.secrets["my_google_creds"]
     creds = ServiceAccountCredentials.from_json_keyfile_name("kunci_sehat.json", scope)
     client = gspread.authorize(creds)
     ID_SHEET = "1e28VoHNGJVVnEsSBVA7Plt03C9gaBSo6gRE6QYKRKko"
