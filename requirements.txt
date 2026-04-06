@@ -3,5 +3,6 @@ requests
 pandas
 gspread
 oauth2client
+pytz
 google-api-python-client
 streamlit-paste-button
