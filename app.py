@@ -22,6 +22,7 @@ if 'logged_in' not in st.session_state:
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 try:
     creds_dict = st.secrets["my_google_creds"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     client = gspread.authorize(creds)
     ID_SHEET = "1e28VoHNGJVVnEsSBVA7Plt03C9gaBSo6gRE6QYKRKko"
     
