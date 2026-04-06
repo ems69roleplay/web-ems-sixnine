@@ -12,7 +12,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from streamlit_paste_button import paste_image_button
 
-
 # --- 1. INISIALISASI SESSION STATE ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
