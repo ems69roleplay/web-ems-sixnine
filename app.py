@@ -19,30 +19,45 @@ if 'logged_in' not in st.session_state:
     st.session_state.user_jabatan = ""
 
 # --- 2. KONEKSI GOOGLE (SHEETS & DRIVE) ---
+# --- 2. KONEKSI GOOGLE (SHEETS & DRIVE) ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 try:
-    creds_info = st.secrets["gcp_service_account"]
+    # 1. Mengambil data dari Secrets Streamlit
+    # Pastikan di menu Secrets kamu sudah pakai label [my_google_creds]
+    creds_dict = st.secrets["my_google_creds"]
+    
+    # 2. Inisialisasi Kredensial
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    
+    # 3. Inisialisasi Client
     client = gspread.authorize(creds)
+    
+    # 4. Hubungkan ke Spreadsheet (ID tetap sama)
     ID_SHEET = "1e28VoHNGJVVnEsSBVA7Plt03C9gaBSo6gRE6QYKRKko"
     
+    # 5. Hubungkan ke tiap Worksheet
     sheet = client.open_by_key(ID_SHEET).sheet1
     sheet_farmasi = client.open_by_key(ID_SHEET).worksheet("Penjualan_Farmasi")
     sheet_absen = client.open_by_key(ID_SHEET).worksheet("Absensi")
     sheet_user = client.open_by_key(ID_SHEET).worksheet("Database_User")
     
+    # Coba hubungkan Log, jika belum ada buat dulu di Google Sheets
     try:
         sheet_log = client.open_by_key(ID_SHEET).worksheet("Log_Aktivitas")
     except:
-        st.error("⚠️ Sheet 'Log_Aktivitas' tidak ditemukan! Buat dulu di Google Sheets.")
+        st.error("⚠️ Sheet 'Log_Aktivitas' tidak ditemukan! Buat dulu di Google Sheets kamu.")
 
 except Exception as e:
-    st.error(f"⚠️ Koneksi Gagal: {e}")
+    # Ini yang memunculkan pesan kuning di gambar kamu jika ada error di atas
+    st.warning(f"⚠️ Koneksi Gagal: {e}")
 
+# Fungsi Global untuk mencatat log (Letakkan tepat setelah blok try-except)
 def catat_log(aktivitas, detail="-"):
     try:
         ts = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         username = st.session_state.get('user_username', 'GUEST')
         nama_ic = st.session_state.get('user_nama_ic', 'GUEST')
+        # Gunakan variabel sheet_log yang sudah dikoneksikan di atas
         sheet_log.append_row([ts, username, nama_ic, aktivitas, detail])
     except:
         pass
