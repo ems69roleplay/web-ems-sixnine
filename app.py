@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
+import google.generativeai as genai
 import gspread
 import math
 import time
@@ -10,7 +11,7 @@ import base64
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from streamlit_paste_button import paste_image_button
-WIB = datetime.timezone(datetime.timedelta(hours=7))
+
 
 # --- 1. INISIALISASI SESSION STATE ---
 if 'logged_in' not in st.session_state:
@@ -20,45 +21,30 @@ if 'logged_in' not in st.session_state:
     st.session_state.user_jabatan = ""
 
 # --- 2. KONEKSI GOOGLE (SHEETS & DRIVE) ---
-# --- 2. KONEKSI GOOGLE (SHEETS & DRIVE) ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 try:
-    # 1. Mengambil data dari Secrets Streamlit
-    # Pastikan di menu Secrets kamu sudah pakai label [my_google_creds]
-    creds_dict = st.secrets["my_google_creds"]
-    
-    # 2. Inisialisasi Kredensial
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    
-    # 3. Inisialisasi Client
+    creds = ServiceAccountCredentials.from_json_keyfile_name("kunci_sehat.json", scope)
     client = gspread.authorize(creds)
-    
-    # 4. Hubungkan ke Spreadsheet (ID tetap sama)
     ID_SHEET = "1e28VoHNGJVVnEsSBVA7Plt03C9gaBSo6gRE6QYKRKko"
     
-    # 5. Hubungkan ke tiap Worksheet
     sheet = client.open_by_key(ID_SHEET).sheet1
     sheet_farmasi = client.open_by_key(ID_SHEET).worksheet("Penjualan_Farmasi")
     sheet_absen = client.open_by_key(ID_SHEET).worksheet("Absensi")
     sheet_user = client.open_by_key(ID_SHEET).worksheet("Database_User")
     
-    # Coba hubungkan Log, jika belum ada buat dulu di Google Sheets
     try:
         sheet_log = client.open_by_key(ID_SHEET).worksheet("Log_Aktivitas")
     except:
-        st.error("⚠️ Sheet 'Log_Aktivitas' tidak ditemukan! Buat dulu di Google Sheets kamu.")
+        st.error("⚠️ Sheet 'Log_Aktivitas' tidak ditemukan! Buat dulu di Google Sheets.")
 
 except Exception as e:
-    # Ini yang memunculkan pesan kuning di gambar kamu jika ada error di atas
-    st.warning(f"⚠️ Koneksi Gagal: {e}")
+    st.error(f"⚠️ Koneksi Gagal: {e}")
 
-# Fungsi Global untuk mencatat log (Letakkan tepat setelah blok try-except)
 def catat_log(aktivitas, detail="-"):
     try:
-        ts = datetime.datetime.now(WIB).strftime("%d/%m/%Y %H:%M:%S")
+        ts = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         username = st.session_state.get('user_username', 'GUEST')
         nama_ic = st.session_state.get('user_nama_ic', 'GUEST')
-        # Gunakan variabel sheet_log yang sudah dikoneksikan di atas
         sheet_log.append_row([ts, username, nama_ic, aktivitas, detail])
     except:
         pass
@@ -105,32 +91,69 @@ header[data-testid="stHeader"] {{
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {{
-    background: rgba(8, 14, 36, 0.92) !important;
-    border-right: 1px solid rgba(99,179,237,0.10) !important;
+    background: linear-gradient(180deg, rgba(5,9,25,0.97) 0%, rgba(8,14,36,0.97) 100%) !important;
+    border-right: 1px solid rgba(56,189,248,0.08) !important;
     backdrop-filter: blur(24px);
 }}
-[data-testid="stSidebar"] .block-container {{ padding: 2rem 1.4rem; }}
+[data-testid="stSidebar"] .block-container {{ padding: 1.8rem 1.2rem 2rem; }}
 
-/* Radio nav */
+/* Hide radio circle/dot */
+[data-testid="stSidebar"] .stRadio [data-baseweb="radio"] > div:first-child {{
+    display: none !important;
+}}
+[data-testid="stSidebar"] .stRadio div[role="radiogroup"] {{
+    gap: 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}}
+
+/* Nav section label */
+[data-testid="stSidebar"] .stRadio > label {{
+    font-size: 0.62rem !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: #334155 !important;
+    font-weight: 700 !important;
+    padding: 0 0.5rem !important;
+    margin-bottom: 0.4rem !important;
+    display: block !important;
+}}
+
+/* Nav items */
 [data-testid="stSidebar"] .stRadio label {{
-    display: block;
-    padding: 0.55rem 1rem;
-    border-radius: 10px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    color: #94a3b8;
-    transition: background 0.18s, color 0.18s;
-    cursor: pointer;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0.62rem 0.9rem !important;
+    border-radius: 10px !important;
+    font-size: 0.83rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.02em !important;
+    color: #64748b !important;
+    transition: all 0.18s ease !important;
+    cursor: pointer !important;
+    border: 1px solid transparent !important;
+    margin: 0 !important;
 }}
 [data-testid="stSidebar"] .stRadio label:hover {{
-    background: rgba(99,179,237,0.08);
-    color: #e2e8f0;
+    background: rgba(56,189,248,0.06) !important;
+    color: #cbd5e1 !important;
+    border-color: rgba(56,189,248,0.1) !important;
 }}
-[data-testid="stSidebar"] .stRadio [aria-checked="true"] + label,
-[data-testid="stSidebar"] .stRadio input:checked + label {{
-    background: rgba(56,189,248,0.12);
-    color: #7dd3fc;
+[data-testid="stSidebar"] .stRadio [data-baseweb="radio"][aria-checked="true"] label,
+[data-testid="stSidebar"] .stRadio label[data-checked="true"],
+[data-testid="stSidebar"] .stRadio div[data-checked="true"] label {{
+    background: linear-gradient(90deg, rgba(56,189,248,0.13), rgba(99,102,241,0.08)) !important;
+    color: #7dd3fc !important;
+    border-color: rgba(56,189,248,0.2) !important;
+    font-weight: 600 !important;
+}}
+
+/* Nav separator line */
+.nav-section-divider {{
+    height: 1px;
+    background: rgba(56,189,248,0.07);
+    margin: 0.8rem 0;
+    border-radius: 1px;
 }}
 
 /* ── Profile Card ── */
@@ -453,14 +476,18 @@ LIST_JABATAN_DAFTAR = ["TRAINEE", "CO-ASS", "DOKTER UMUM", "DOKTER SPESIALIS", "
 LIST_JABATAN_FULL = LIST_JABATAN_DAFTAR + ["ADMIN"]
 
 if not st.session_state.logged_in:
-    # Logo & brand
-    col_l, col_c, col_r = st.columns([1, 2, 1])
+    # Logo & brand — centered layout
+    col_l, col_c, col_r = st.columns([1, 1.4, 1])
     with col_c:
-        st.markdown('<div class="login-wrap">', unsafe_allow_html=True)
-        st.image('ems69_logo.png', width=110, use_container_width=False, output_format="PNG")
-        st.markdown('<p class="login-brand">SIXNINE <span>MEDICAL</span> CENTRE</p>', unsafe_allow_html=True)
-        st.markdown('<p class="login-tagline">Emergency Medical Services · Management System</p>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        logo_b64 = get_base64('ems69_logo.png')
+        st.markdown(f'''
+        <div style="display:flex; flex-direction:column; align-items:center; padding: 3.5rem 0 0.5rem;">
+            <img src="data:image/png;base64,{logo_b64}"
+                 style="width:160px; height:auto; margin-bottom:1.2rem; filter: drop-shadow(0 0 24px rgba(56,189,248,0.25));">
+            <p class="login-brand">SIXNINE <span>MEDICAL</span> CENTRE</p>
+            <p class="login-tagline">Emergency Medical Services · Management System</p>
+        </div>
+        ''', unsafe_allow_html=True)
 
         t_login, t_daftar = st.tabs(["  Masuk  ", "  Daftar  "])
 
@@ -505,7 +532,7 @@ if not st.session_state.logged_in:
                         if any(u['Username'] == reg_user for u in users) or reg_user == "emsadmin":
                             st.error("Username sudah terdaftar.")
                         else:
-                            ts = datetime.datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S")
+                            ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             sheet_user.append_row([ts, reg_user, reg_nama_ic.upper(), reg_pass, reg_jabatan])
                             catat_log("DAFTAR AKUN", f"User baru mendaftar: {reg_nama_ic.upper()} sebagai {reg_jabatan}")
                             st.success("Akun berhasil dibuat! Silakan masuk.")
@@ -535,9 +562,23 @@ admin_panel_access = ["SDM - KOMDIS", "SDM - FTO", "WAKIL DIREKTUR", "DIREKTUR",
 if role in admin_panel_access:
     opsi_menu.append("ADMIN MENU")
 
-menu = st.sidebar.radio("Navigasi", opsi_menu)
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
-if st.sidebar.button("Logout"):
+MENU_ICONS = {
+    "HOME": "🏠",
+    "ABSENSI": "🕒",
+    "PEMBUATAN KTS": "📝",
+    "PENJUALAN FARMASI": "💊",
+    "ADMIN MENU": "⚙️",
+}
+
+# Render label dengan ikon
+opsi_menu_display = [f"{MENU_ICONS.get(m, '•')}  {m}" for m in opsi_menu]
+menu_map = {f"{MENU_ICONS.get(m, '•')}  {m}": m for m in opsi_menu}
+
+st.sidebar.markdown('<p style="font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:#334155;font-weight:700;padding:0 0.5rem;margin-bottom:0.5rem;">Menu Utama</p>', unsafe_allow_html=True)
+selected_display = st.sidebar.radio("", opsi_menu_display, label_visibility="collapsed")
+menu = menu_map[selected_display]
+st.sidebar.markdown('<div class="nav-section-divider" style="margin-top:1.5rem;"></div>', unsafe_allow_html=True)
+if st.sidebar.button("🚪  Logout", use_container_width=True):
     catat_log("LOGOUT", "User keluar dari sistem")
     st.session_state.logged_in = False
     st.rerun()
@@ -571,8 +612,7 @@ elif menu == "PEMBUATAN KTS":
     col1, col2 = st.columns([1, 1], gap="large")
 
     with col1:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown("**🆔 Identitas KTP**")
+        st.markdown('<p style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#38bdf8;margin-bottom:0.8rem;">🆔 Identitas KTP</p>', unsafe_allow_html=True)
         p_ktp = paste_image_button(label="📋 Paste KTP (Ctrl+V)", key=f"p_ktp_{suffix}")
         f_ktp = st.file_uploader("Atau upload KTP", type=['png','jpg','jpeg'], key=f"f_ktp_{suffix}")
         if p_ktp.image_data:
@@ -582,7 +622,7 @@ elif menu == "PEMBUATAN KTS":
         if st.session_state.get('img_ktp_final'):
             st.image(st.session_state.img_ktp_final, width=280)
 
-        st.markdown("<br>**👤 Pas Foto**", unsafe_allow_html=True)
+        st.markdown('<p style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#38bdf8;margin:1.2rem 0 0.8rem;">👤 Pas Foto</p>', unsafe_allow_html=True)
         link_pas_foto = st.text_input("🔗 Link foto (ShareX / screenshot)", placeholder="https://...", key=f"link_pas_{suffix}")
         p_pas = paste_image_button(label="📋 Paste Foto", key=f"p_pas_{suffix}")
         f_pas = st.file_uploader("Atau upload file", type=['png','jpg','jpeg'], key=f"f_pas_{suffix}")
@@ -594,11 +634,9 @@ elif menu == "PEMBUATAN KTS":
             st.session_state.img_pas_final = f_pas
         if st.session_state.get('img_pas_final'):
             st.image(st.session_state.img_pas_final, width=280)
-        st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown("**📋 Data Pasien**")
+        st.markdown('<p style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#38bdf8;margin-bottom:0.8rem;">📋 Data Pasien</p>', unsafe_allow_html=True)
         with st.form(key=f"kts_form_{suffix}"):
             nama = st.text_input("Nama Lengkap")
             tgl_lahir = st.date_input("Tanggal Lahir", value=datetime.date(2000, 1, 1))
@@ -628,7 +666,7 @@ elif menu == "PEMBUATAN KTS":
                             sumber_pas = st.session_state.img_pas_final
                             url_pas_discord = upload_to_discord(sumber_pas, "PASFOTO")
                             url_simpan_sheets = sumber_pas if isinstance(sumber_pas, str) else url_pas_discord
-                            ts = datetime.datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S")
+                            ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                             data_baru = [ts, nama.upper(), str(tgl_lahir), jk, url_ktp, url_simpan_sheets, tgl_exp.strftime("%d/%m/%Y"), st.session_state.user_nama_ic]
 
                             found_cell = None
@@ -656,7 +694,6 @@ elif menu == "PEMBUATAN KTS":
                         st.error(f"Terjadi kesalahan: {err}")
                 else:
                     st.error("Data belum lengkap. Lengkapi semua field dan gambar.")
-        st.markdown('</div>', unsafe_allow_html=True)
 
 # ── PENJUALAN FARMASI ──────────────────────────────────────────────────────────
 elif menu == "PENJUALAN FARMASI":
@@ -669,7 +706,7 @@ elif menu == "PENJUALAN FARMASI":
     except:
         list_nama_warga = []
 
-    now = datetime.datetime.now(WIB)
+    now = datetime.datetime.now()
     hari_efektif = (now - datetime.timedelta(days=1)).strftime("%d/%m/%Y") if now.hour < 13 else now.strftime("%d/%m/%Y")
     st.markdown(f'<div class="info-pill">📅 Tanggal sesi penjualan: <strong>{hari_efektif}</strong></div>', unsafe_allow_html=True)
 
@@ -752,7 +789,7 @@ elif menu == "ABSENSI":
         except Exception as e:
             return False, str(e)
 
-    m_sekarang, p_sekarang = get_info_minggu(datetime.datetime.now(WIB))
+    m_sekarang, p_sekarang = get_info_minggu(datetime.datetime.now())
     st.markdown(f"""
         <div class="week-info">
             Periode aktif: <strong>{p_sekarang}</strong> &nbsp;·&nbsp; Minggu ke-{m_sekarang}
@@ -767,12 +804,12 @@ elif menu == "ABSENSI":
         if not is_on_duty:
             st.markdown('<div class="status-off">🔴 Status Anda saat ini: <strong>OFF DUTY</strong></div>', unsafe_allow_html=True)
             if st.button("🚀 Mulai On Duty Sekarang", use_container_width=True):
-                st.session_state.waktu_on_raw = datetime.datetime.now(WIB)
+                st.session_state.waktu_on_raw = datetime.datetime.now()
                 st.success(f"Status: 🟢 ON DUTY · Pukul {st.session_state.waktu_on_raw.strftime('%H:%M:%S')}")
                 st.rerun()
         else:
             waktu_on = st.session_state.waktu_on_raw
-            waktu_sekarang = datetime.datetime.now(WIB)
+            waktu_sekarang = datetime.datetime.now()
             durasi_berjalan = waktu_sekarang - waktu_on
             jam_berjalan, sisa_berjalan = divmod(int(durasi_berjalan.total_seconds()), 3600)
             st.markdown(f"""
@@ -787,7 +824,7 @@ elif menu == "ABSENSI":
                 f_keterangan_on = st.text_input("Keterangan kegiatan (opsional)", placeholder="Contoh: Patroli, Jaga RS")
                 if st.form_submit_button("🛑 Selesai & Off Duty", use_container_width=True):
                     with st.spinner("Menghitung durasi dan menyimpan..."):
-                        tgl_selesai = datetime.datetime.now(WIB)
+                        tgl_selesai = datetime.datetime.now()
                         sukses, durasi_total = simpan_absen_smart(waktu_on, tgl_selesai, "Real-time", f_keterangan_on)
                         if sukses:
                             st.balloons()
