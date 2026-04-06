@@ -9,6 +9,8 @@ import datetime
 import base64
 import pytz
 WIB = pytz.timezone("Asia/Jakarta")
+def now_wib():
+    return datetime.datetime.now(WIB).replace(tzinfo=None)
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from streamlit_paste_button import paste_image_button
