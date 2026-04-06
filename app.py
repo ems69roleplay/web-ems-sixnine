@@ -10,6 +10,7 @@ import base64
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from streamlit_paste_button import paste_image_button
+WIB = datetime.timezone(datetime.timedelta(hours=7))
 
 # --- 1. INISIALISASI SESSION STATE ---
 if 'logged_in' not in st.session_state:
@@ -54,7 +55,7 @@ except Exception as e:
 # Fungsi Global untuk mencatat log (Letakkan tepat setelah blok try-except)
 def catat_log(aktivitas, detail="-"):
     try:
-        ts = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        ts = datetime.datetime.now(WIB).strftime("%d/%m/%Y %H:%M:%S")
         username = st.session_state.get('user_username', 'GUEST')
         nama_ic = st.session_state.get('user_nama_ic', 'GUEST')
         # Gunakan variabel sheet_log yang sudah dikoneksikan di atas
@@ -504,7 +505,7 @@ if not st.session_state.logged_in:
                         if any(u['Username'] == reg_user for u in users) or reg_user == "emsadmin":
                             st.error("Username sudah terdaftar.")
                         else:
-                            ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            ts = datetime.datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S")
                             sheet_user.append_row([ts, reg_user, reg_nama_ic.upper(), reg_pass, reg_jabatan])
                             catat_log("DAFTAR AKUN", f"User baru mendaftar: {reg_nama_ic.upper()} sebagai {reg_jabatan}")
                             st.success("Akun berhasil dibuat! Silakan masuk.")
@@ -627,7 +628,7 @@ elif menu == "PEMBUATAN KTS":
                             sumber_pas = st.session_state.img_pas_final
                             url_pas_discord = upload_to_discord(sumber_pas, "PASFOTO")
                             url_simpan_sheets = sumber_pas if isinstance(sumber_pas, str) else url_pas_discord
-                            ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            ts = datetime.datetime.now(WIB).strftime("%Y-%m-%d %H:%M:%S")
                             data_baru = [ts, nama.upper(), str(tgl_lahir), jk, url_ktp, url_simpan_sheets, tgl_exp.strftime("%d/%m/%Y"), st.session_state.user_nama_ic]
 
                             found_cell = None
@@ -668,7 +669,7 @@ elif menu == "PENJUALAN FARMASI":
     except:
         list_nama_warga = []
 
-    now = datetime.datetime.now()
+    now = datetime.datetime.now(WIB)
     hari_efektif = (now - datetime.timedelta(days=1)).strftime("%d/%m/%Y") if now.hour < 13 else now.strftime("%d/%m/%Y")
     st.markdown(f'<div class="info-pill">📅 Tanggal sesi penjualan: <strong>{hari_efektif}</strong></div>', unsafe_allow_html=True)
 
@@ -751,7 +752,7 @@ elif menu == "ABSENSI":
         except Exception as e:
             return False, str(e)
 
-    m_sekarang, p_sekarang = get_info_minggu(datetime.datetime.now())
+    m_sekarang, p_sekarang = get_info_minggu(datetime.datetime.now(WIB))
     st.markdown(f"""
         <div class="week-info">
             Periode aktif: <strong>{p_sekarang}</strong> &nbsp;·&nbsp; Minggu ke-{m_sekarang}
@@ -766,12 +767,12 @@ elif menu == "ABSENSI":
         if not is_on_duty:
             st.markdown('<div class="status-off">🔴 Status Anda saat ini: <strong>OFF DUTY</strong></div>', unsafe_allow_html=True)
             if st.button("🚀 Mulai On Duty Sekarang", use_container_width=True):
-                st.session_state.waktu_on_raw = datetime.datetime.now()
+                st.session_state.waktu_on_raw = datetime.datetime.now(WIB)
                 st.success(f"Status: 🟢 ON DUTY · Pukul {st.session_state.waktu_on_raw.strftime('%H:%M:%S')}")
                 st.rerun()
         else:
             waktu_on = st.session_state.waktu_on_raw
-            waktu_sekarang = datetime.datetime.now()
+            waktu_sekarang = datetime.datetime.now(WIB)
             durasi_berjalan = waktu_sekarang - waktu_on
             jam_berjalan, sisa_berjalan = divmod(int(durasi_berjalan.total_seconds()), 3600)
             st.markdown(f"""
@@ -786,7 +787,7 @@ elif menu == "ABSENSI":
                 f_keterangan_on = st.text_input("Keterangan kegiatan (opsional)", placeholder="Contoh: Patroli, Jaga RS")
                 if st.form_submit_button("🛑 Selesai & Off Duty", use_container_width=True):
                     with st.spinner("Menghitung durasi dan menyimpan..."):
-                        tgl_selesai = datetime.datetime.now()
+                        tgl_selesai = datetime.datetime.now(WIB)
                         sukses, durasi_total = simpan_absen_smart(waktu_on, tgl_selesai, "Real-time", f_keterangan_on)
                         if sukses:
                             st.balloons()
