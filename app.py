@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 import pandas as pd
-import google.generativeai as genai
 import gspread
 import math
 import time
