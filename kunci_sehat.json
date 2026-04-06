@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "fluent-cable-491512-v2",
+  "private_key_id": "735b1578ca1b9f986a392bcb8bef3591c425dc03",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDCtxQOiou0BUn/\n5luQ3b0MxZUynFXxWXxTgvlPC+/nqEE6QKSO/4wt6TUjD18F/ssynORDnx6thvVS\nHKKe4upqVg43D49De3Pf0LfbauTASMUafyfKkOBCSnsLAKbiyVUPmvFlQhv746ft\nUJNoPd6meYtizQoFj6DUw9DAcjmVfE2J6UbgaBocdB5kQNgTz1/rDH+EadXYpHO9\n46eJHh8kadnZqW2an0Qx7Ao900cgJEjwCpPT581TnokLYhzkAlNAn/HGQnniBQCi\nKve1JcoNEjyHqqwsVnde18Iy0PANK/5YLLW2IBkuNXHdeVKAH+nVkyPR4ptLYkBi\nxhEn8eINAgMBAAECggEAIUQvlktn0lYL/j8gOjgUBjRUiOzKRx1zfv4Ts4RV1LV7\njWUBaFfzHl3nQOntoWPWWfuRiRcMofd6frCbPPuGMqwoqhILtysGkUDCxKc21T4p\nhJ0gUnydf93jNy5BlOHyWSPu5Y6dotOSe1pGkOrvGPCPlo3yzh/riaY5ykNJoMbr\nS9SvgDrGo3/Xb1/2W3/tCv8w3G2095RpOYGnQ5MyvfKJyxoMAfHyclcSebY2YYOt\nvDCYva8yC4OY3VbO9UDehh/qtguvhpcIcgEOuzqDMVlUNh5PgH3Eiq/vZviAia2U\nSTcLAJrCHK8KD7xTsDlqU8ZXlRNkGNO8WYO+aDqkOQKBgQDoXm64kmmBg1OZlPHb\nVKw6Xwk3NEcjCDmXuEPiJgPAH+JuHbuNguJmkjHGkTRhX5MhEYehybOu6U+pDM6Y\nsK7KWhPaQQe/yvYoUMjXvNMk3yP3yJrtzMoPt7Lx/hqoLFes31S8FDmVtS7G5m7G\n8OIbWsQOWmPPTLGI3C+wZcK+hQKBgQDWhFs7Ct2oefm/wN3f97xeBybbJa6B1Vd1\nU1LfvPVhurxGwSPcJh6/fo1EVimpTQj0y2VAsj4MQbLjvtzD4WLwSPXCtUY23llI\nbflxg0n8xJu2NvnNl/bheN44JwqruGFzkoYJre6o2E05vjXJuw63qb0ZWwH06Qw/\nfDSC5/z/6QKBgGeLzSMKe2FvOA20RaJLNQQ93UlwTlLaE2/8eKOJ9RnkG26eaTlC\nHck/VFb71a+ee129Bgeebid/aDQYtOdttDYPtdEIMX/R3adReG5KgnxnwwtjpUZa\nf6BJZ8BWT2Kpf9hVHNlC2fZQaqvPe4XDSb6Oz9bliJyTvHkURVwBvKpRAoGAQTtk\nZrLqLqZQ3Q+wKMAz5r/z/+YYh+CxRLs+00yprbtUL4vh9Lse1IqOOL6e0p3bYF1N\nf/vzxFRiKsFKbsJmDL2TBk+Ld3nr2oues/cBk7zRwPo8wlk4uN3BbX/pzcg20ic3\nXVAn5+5GpY2C28JnOlCCcWhsUuZfVBrX+QrEs6kCgYB2fSk6c6wfegVmY/rFmUo/\n+rzz61OJBEnCMajWeqV5cBTyw9Tm0c5yx0DAmhxPdqQXiHHtwN+yvELP98MX8TtD\nZQc8xrMFvu7cu1aUlU++h0B6khDnQvPsgCp+SxkcluzC7T1FeFWeOpGNQb8b4q3J\nqRmJsddPUzAj30ntKQPg0g==\n-----END PRIVATE KEY-----\n",
+  "client_email": "database-ems@fluent-cable-491512-v2.iam.gserviceaccount.com",
+  "client_id": "115619162236638126258",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/database-ems%40fluent-cable-491512-v2.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
